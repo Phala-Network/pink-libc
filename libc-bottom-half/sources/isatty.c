@@ -1,7 +1,11 @@
 #include <wasi/api.h>
 #include <__errno.h>
 #include <__function___isatty.h>
-
+#ifdef __pink__
+int __isatty(int fd) {
+    return 0;
+}
+#else
 int __isatty(int fd) {
     __wasi_fdstat_t statbuf;
     int r = __wasi_fd_fdstat_get(fd, &statbuf);
@@ -19,4 +23,5 @@ int __isatty(int fd) {
 
     return 1;
 }
+#endif
 extern __typeof(__isatty) isatty __attribute__((weak, alias("__isatty")));

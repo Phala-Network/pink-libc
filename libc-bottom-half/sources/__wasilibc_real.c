@@ -380,8 +380,19 @@ __wasi_errno_t __wasi_fd_write(
     size_t iovs_len,
     __wasi_size_t *retptr0
 ){
+#ifdef __pink__
+    size_t __pink_fd_write(int fd, const unsigned char *buf, size_t len);
+    size_t ret = 0;
+    for(size_t i = 0; i < iovs_len; i++) {
+        if (iovs[i].buf_len > 0) {
+            ret += __pink_fd_write(fd, iovs[i].buf, iovs[i].buf_len);
+        }
+    }
+    return ret;
+#else
     int32_t ret = __imported_wasi_snapshot_preview1_fd_write((int32_t) fd, (int32_t) iovs, (int32_t) iovs_len, (int32_t) retptr0);
     return (uint16_t) ret;
+#endif
 }
 
 int32_t __imported_wasi_snapshot_preview1_path_create_directory(int32_t arg0, int32_t arg1, int32_t arg2) __attribute__((

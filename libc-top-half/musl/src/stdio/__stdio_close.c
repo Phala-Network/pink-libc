@@ -21,6 +21,10 @@ int __stdio_close(FILE *f)
 #ifdef __wasilibc_unmodified_upstream // WASI has no syscall
 	return syscall(SYS_close, __aio_close(f->fd));
 #else
+#ifdef __pink__
+	return 0;
+#else
 	return close(__aio_close(f->fd));
+#endif
 #endif
 }

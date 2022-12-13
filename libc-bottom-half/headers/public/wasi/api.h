@@ -20,7 +20,7 @@
 #define __wasi_api_h
 
 #ifndef __wasi__
-#error <wasi/api.h> is only supported on WASI platforms.
+// #error <wasi/api.h> is only supported on WASI platforms.
 #endif
 
 #ifndef __wasm32__

@@ -8,7 +8,11 @@ NM ?= $(patsubst %clang,%llvm-nm,$(filter-out ccache sccache,$(CC)))
 ifeq ($(origin AR), default)
 AR = $(patsubst %clang,%llvm-ar,$(filter-out ccache sccache,$(CC)))
 endif
+PINK = 1
 EXTRA_CFLAGS ?= -O2 -DNDEBUG
+ifeq ($(PINK), 1)
+EXTRA_CFLAGS += -D__pink__=1
+endif
 # The directory where we build the sysroot.
 SYSROOT ?= $(CURDIR)/sysroot
 # A directory to install to for "make install".
@@ -16,7 +20,11 @@ INSTALL_DIR ?= /usr/local
 # single or posix; note that pthread support is still a work-in-progress.
 THREAD_MODEL ?= single
 # dlmalloc or none
+ifeq ($(PINK), 1)
+MALLOC_IMPL ?= pink
+else
 MALLOC_IMPL ?= dlmalloc
+endif
 # yes or no
 BUILD_LIBC_TOP_HALF ?= yes
 # The directory where we will store intermediate artifacts.
@@ -34,14 +42,21 @@ BULK_MEMORY_THRESHOLD ?= 32
 
 # Set the target variables. Multiarch triples notably omit the vendor field,
 # which happens to be what we do for the main target triple too.
+ifeq ($(PINK), 1)
+TARGET_TRIPLE = wasm32-pink
+MULTIARCH_TRIPLE = wasm32-pink
+else
 TARGET_TRIPLE = wasm32-wasi
 MULTIARCH_TRIPLE = wasm32-wasi
+endif
 
 # These variables describe the locations of various files and directories in
 # the source tree.
 DLMALLOC_DIR = $(CURDIR)/dlmalloc
 DLMALLOC_SRC_DIR = $(DLMALLOC_DIR)/src
 DLMALLOC_SOURCES = $(DLMALLOC_SRC_DIR)/dlmalloc.c
+PINKALLOC_DIR = $(CURDIR)/pinkalloc
+PINKALLOC_SOURCES = $(PINKALLOC_DIR)/pinkalloc.c
 DLMALLOC_INC = $(DLMALLOC_DIR)/include
 EMMALLOC_DIR = $(CURDIR)/emmalloc
 EMMALLOC_SOURCES = $(EMMALLOC_DIR)/emmalloc.c
@@ -329,6 +344,7 @@ CFLAGS += -isystem "$(SYSROOT_INC)"
 # the build tree.
 objs = $(patsubst $(CURDIR)/%.c,$(OBJDIR)/%.o,$(1))
 DLMALLOC_OBJS = $(call objs,$(DLMALLOC_SOURCES))
+PINKALLOC_OBJS = $(call objs,$(PINKALLOC_SOURCES))
 EMMALLOC_OBJS = $(call objs,$(EMMALLOC_SOURCES))
 LIBC_BOTTOM_HALF_ALL_OBJS = $(call objs,$(LIBC_BOTTOM_HALF_ALL_SOURCES))
 LIBC_TOP_HALF_ALL_OBJS = $(call objs,$(LIBC_TOP_HALF_ALL_SOURCES))
@@ -336,6 +352,8 @@ ifeq ($(MALLOC_IMPL),dlmalloc)
 LIBC_OBJS += $(DLMALLOC_OBJS)
 else ifeq ($(MALLOC_IMPL),emmalloc)
 LIBC_OBJS += $(EMMALLOC_OBJS)
+else ifeq ($(MALLOC_IMPL),pink)
+LIBC_OBJS += $(PINKALLOC_OBJS)
 else ifeq ($(MALLOC_IMPL),none)
 # No object files to add.
 else

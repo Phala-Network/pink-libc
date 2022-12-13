@@ -60,6 +60,7 @@ double nearbyint(double x) {
     return __builtin_nearbyint(x);
 }
 
+#ifndef __pink__
 float rintf(float x) {
     return __builtin_rintf(x);
 }
@@ -67,3 +68,4 @@ float rintf(float x) {
 double rint(double x) {
     return __builtin_rint(x);
 }
+#endif

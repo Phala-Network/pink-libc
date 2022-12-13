@@ -17,6 +17,12 @@ FILE *__fdopen(int fd, const char *mode)
 	struct winsize wsz;
 #endif
 
+#ifdef __pink__
+	if (fd > 2) {
+		errno = EINVAL;
+		return 0;
+	}
+#endif
 	/* Check for valid initial mode character */
 	if (!strchr("rwa", *mode)) {
 		errno = EINVAL;
