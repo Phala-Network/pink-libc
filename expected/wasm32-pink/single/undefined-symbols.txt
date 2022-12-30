@@ -13,7 +13,6 @@ __gttf2
 __imported_wasi_snapshot_preview1_args_get
 __imported_wasi_snapshot_preview1_args_sizes_get
 __imported_wasi_snapshot_preview1_clock_res_get
-__imported_wasi_snapshot_preview1_clock_time_get
 __imported_wasi_snapshot_preview1_environ_get
 __imported_wasi_snapshot_preview1_environ_sizes_get
 __imported_wasi_snapshot_preview1_fd_advise
@@ -58,6 +57,7 @@ __letf2
 __lttf2
 __main_argc_argv
 __netf2
+__pink_clock_time_get
 __pink_fd_write
 __pink_free
 __pink_malloc

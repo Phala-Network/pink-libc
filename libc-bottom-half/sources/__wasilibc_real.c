@@ -83,13 +83,19 @@ int32_t __imported_wasi_snapshot_preview1_clock_time_get(int32_t arg0, int64_t a
     __import_name__("clock_time_get")
 ));
 
+uint16_t __pink_clock_time_get(uint32_t id, uint64_t precision, uint64_t *retptr0);
+
 __wasi_errno_t __wasi_clock_time_get(
     __wasi_clockid_t id,
     __wasi_timestamp_t precision,
     __wasi_timestamp_t *retptr0
 ){
+#ifdef __pink__
+    return __pink_clock_time_get(id, precision, retptr0);
+#else
     int32_t ret = __imported_wasi_snapshot_preview1_clock_time_get((int32_t) id, (int64_t) precision, (int32_t) retptr0);
     return (uint16_t) ret;
+#endif
 }
 
 int32_t __imported_wasi_snapshot_preview1_fd_advise(int32_t arg0, int64_t arg1, int64_t arg2, int32_t arg3) __attribute__((
