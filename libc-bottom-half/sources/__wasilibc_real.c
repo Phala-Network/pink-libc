@@ -384,19 +384,25 @@ __wasi_errno_t __wasi_fd_write(
     __wasi_fd_t fd,
     const __wasi_ciovec_t *iovs,
     size_t iovs_len,
-    __wasi_size_t *retptr0
+    __wasi_size_t *bytes_written
 ){
 #ifdef __pink__
     size_t __pink_fd_write(int fd, const unsigned char *buf, size_t len);
-    size_t ret = 0;
+    size_t ret = 0, nb;
+    *bytes_written = 0;
     for(size_t i = 0; i < iovs_len; i++) {
         if (iovs[i].buf_len > 0) {
-            ret += __pink_fd_write(fd, iovs[i].buf, iovs[i].buf_len);
+            nb = __pink_fd_write(fd, iovs[i].buf, iovs[i].buf_len);
+            if (nb < 0) {
+                ret = nb;
+                break;
+            }
+            *bytes_written += nb;
         }
     }
     return ret;
 #else
-    int32_t ret = __imported_wasi_snapshot_preview1_fd_write((int32_t) fd, (int32_t) iovs, (int32_t) iovs_len, (int32_t) retptr0);
+    int32_t ret = __imported_wasi_snapshot_preview1_fd_write((int32_t) fd, (int32_t) iovs, (int32_t) iovs_len, (int32_t) bytes_written);
     return (uint16_t) ret;
 #endif
 }
